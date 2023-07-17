@@ -11,10 +11,11 @@ class DroneTracker:
         self.drone = drone
         self.drone.streamon()
 
-        self.pid = [0.4, 0.6]
+        self.pid = [0.6, 0.4]
         self.previous_correction = [0, 0, 0]
         self.has_tracked = False
         self.loss_timestamp = 0
+        self.time_to_find = 4
         
     def trackTarget(self, info, w, h, required_area):
         area = info[1]
@@ -30,15 +31,15 @@ class DroneTracker:
         up_correction = h // 2 - y
         
         if area == 0:
-            yaw_correction = self.previous_correction[0]
-            if (abs(self.previous_correction[2]) > 10):
+            yaw_correction = self.previous_correction[0] * 0.99
+            if (abs(self.previous_correction[2]) < 10):
                 front_correction = self.previous_correction[1]
             up_correction = self.previous_correction[2]
             
             if self.loss_timestamp == 0:
-                self.loss_timestamp = time.time()
+                self.loss_timestamp = time.time() + self.time_to_find
 
-            if self.loss_timestamp < time.time() - 2:
+            if self.loss_timestamp < time.time():
                 print("LOST THE TARGET!!")
                 self.reset()
                 return
@@ -58,6 +59,7 @@ class DroneTracker:
     def reset(self):
         self.previous_correction = [0, 0, 0]
         self.has_tracked = False
+        self.drone.send_rc_control(0, 0, 0, 0)
 
     def print_battery_state(self):
         text = "Battery: {}%".format(self.drone.get_battery())
