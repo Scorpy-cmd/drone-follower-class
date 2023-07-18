@@ -6,20 +6,34 @@ import time
 import logging
 import keyboard
 
+# Этот класс используется для доступа к ключам словаря через точку
+# Original: 
+# https://bobbyhadz.com/blog/python-use-dot-to-access-dictionary#use-dot--notation-to-access-dictionary-keys-using-__dict__
+class AttributeDict(dict):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.__dict__ = self
+
 class DroneTracker:
     def __init__(self, drone):
         self.drone = drone
         self.drone.streamon()
 
         self.pid = [0.6, 0.4]
-        self.previous_correction = [0, 0, 0]
+        self.previous_correction = AttributeDict({"yaw" : 0, "front" : 0, "up" : 0})
         self.has_tracked = False
         self.loss_timestamp = 0
         self.time_to_find = 4
+
+        self.is_searching = False
         
     def trackTarget(self, info, w, h, required_area):
         area = info[1]
         x, y = info[0]
+
+        if self.is_searching:
+            self.searchForTarget(area)
+            return
 
         if area == 0 and not(self.has_tracked):
             return
@@ -31,33 +45,64 @@ class DroneTracker:
         up_correction = h // 2 - y
         
         if area == 0:
-            yaw_correction = self.previous_correction[0] * 0.99
-            if (abs(self.previous_correction[2]) < 10):
-                front_correction = self.previous_correction[1]
-            up_correction = self.previous_correction[2]
-            
+            yaw_correction = self.previous_correction.yaw * 0.99
+            up_correction = self.previous_correction.up
+            if (abs(self.previous_correction.up) < 20):
+                front_correction = self.previous_correction.front
+            else: 
+                front_correction = 0
+
             if self.loss_timestamp == 0:
                 self.loss_timestamp = time.time() + self.time_to_find
 
             if self.loss_timestamp < time.time():
+                print(self.loss_timestamp)
                 print("LOST THE TARGET!!")
                 self.reset()
                 return
+        else:
+            self.loss_timestamp = 0
 
-        yaw_speed = self.pid[0] * yaw_correction + self.pid[1] * (yaw_correction - self.previous_correction[0])
+        yaw_speed = self.pid[0] * yaw_correction + self.pid[1] * (yaw_correction - self.previous_correction.yaw)
         yaw_speed = int(self.clamp(yaw_speed, -100, 100))
 
-        front_speed = self.pid[0] * front_correction + self.pid[1] * (front_correction - self.previous_correction[1])
+        front_speed = self.pid[0] * front_correction + self.pid[1] * (front_correction - self.previous_correction.front)
         front_speed = int(self.clamp(front_speed, -100, 100))
 
-        up_speed = self.pid[0] * up_correction - self.pid[1] * (up_correction - self.previous_correction[2])
+        up_speed = self.pid[0] * up_correction - self.pid[1] * (up_correction - self.previous_correction.up)
         up_speed = int(self.clamp(up_speed, -100, 100))
 
         self.drone.send_rc_control(0, front_speed, up_speed, yaw_speed)
-        self.previous_correction = [yaw_correction, front_correction, up_correction]
+
+        self.previous_correction.yaw   = yaw_correction
+        self.previous_correction.up    = up_correction
+        self.previous_correction.front = front_correction
+
+    def findTarget(self):
+        self.loss_timestamp = time.time() + self.time_to_find * 2
+        self.is_searching = True
+
+    def searchForTarget(self, area):
+        if area != 0:
+            self.is_searching = False
+            self.loss_timestamp = 0
+            self.drone.send_rc_control(0, 0, 0, 0)
+            return
+
+        if self.loss_timestamp > time.time():
+            self.drone.send_rc_control(30, 0, 30, -60)
+        elif self.loss_timestamp + self.time_to_find * 2 > time.time():
+            self.drone.send_rc_control(0, 0, -30, 0)
+        else:
+            self.is_searching = False
+            self.loss_timestamp = 0
+            self.drone.send_rc_control(0, 0, 0, 0)
+            print("Failed to find the target!")
+
 
     def reset(self):
-        self.previous_correction = [0, 0, 0]
+        self.loss_timestamp = 0
+        self.previous_correction = AttributeDict({"yaw" : 0, "front" : 0, "up" : 0})
         self.has_tracked = False
         self.drone.send_rc_control(0, 0, 0, 0)
 
@@ -99,7 +144,7 @@ def findFace(img):
         return img, [[0,0],0]
 
 
-Tello.LOGGER.setLevel(logging.WARN)
+#Tello.LOGGER.setLevel(logging.WARN)
 
 screen_w, screen_h = 360, 240
 required_area = 5000
@@ -116,9 +161,14 @@ timestamp = 0
 
 while True:
     if keyboard.is_pressed("q"):
+        tello.send_rc_control(0, 0, 0, 0)
         tello.land()
         tello.streamoff()
         break
+
+    if keyboard.is_pressed("r"):
+        if not tracker.is_searching:
+            tracker.findTarget()
 
     img = tello.get_frame_read().frame
     img = cv2.resize(img, (screen_w, screen_h))
@@ -128,3 +178,5 @@ while True:
     cv2.waitKey(1)
 
     tracker.trackTarget(info, screen_w, screen_h, required_area)
+else:
+    print("Произошла ебтвоюмать")
