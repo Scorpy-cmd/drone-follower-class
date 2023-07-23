@@ -2,6 +2,7 @@
 test.py
 yolo v8 test.py
 yolov8n.pt
+coco.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
