@@ -1,5 +1,6 @@
 import time
 
+
 # Этот класс используется для доступа к ключам словаря через точку
 # Original: 
 # https://bobbyhadz.com/blog/python-use-dot-to-access-dictionary#use-dot--notation-to-access-dictionary-keys-using-__dict__
@@ -7,6 +8,7 @@ class AttributeDict(dict):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.__dict__ = self
+
 
 class DroneTracker:
     def __init__(self, drone):
@@ -17,15 +19,16 @@ class DroneTracker:
         self.has_tracked = False
         self.loss_timestamp = 0
         self.time_to_find = 4
-    
+
     # main function to track person
     def trackTarget(self, info : list[int, int], width_of_screen : int, height_of_screen : int) -> None:
         x, y = info
 
         # if target is not found and was not tracked then return
         if x < 0 and not(self.has_tracked):
+            self.reset()
             return
-        
+
         # target is visible -> start tracking
         self.has_tracked = True
 
@@ -58,7 +61,7 @@ class DroneTracker:
         side_speed = int(self.clamp(side_speed, -10, 10))
 
         front_speed = self.pid[0] * front_correction + self.pid[1] * (front_correction - self.previous_correction.front)
-        front_speed = - int(self.clamp(4 * front_speed, -10, 10))
+        front_speed = -int(self.clamp(4 * front_speed, -10, 10))
 
         self.drone.send_rc_control(side_speed, front_speed, 0, 0)
 

@@ -1,7 +1,6 @@
 print("Loading libraries...")
 import cv2
 from ultralytics import YOLO
-# import random
 import time
 print("done!")
 # from Face_tracker import DroneTracker

@@ -10,6 +10,7 @@ print("setting up yolo")
 from yolo import PersonRecognision
 print("done")
 
+
 def script(IP, state_port, vs_port, drone_index, arr, init_check, running):
     if drone_index != 0:
         while not init_check[drone_index - 1]:
@@ -30,7 +31,7 @@ def startDrone(drone, drone_index, arr, running):
     follower = DroneTracker(tello)
     tello.streamon()
     yolo = PersonRecognision()
-    
+
     arr[drone_index] = True
     print("started!")
     while not_ready_to_ship(arr):
