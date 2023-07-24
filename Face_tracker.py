@@ -55,10 +55,10 @@ class DroneTracker:
             self.loss_timestamp = 0
 
         side_speed = self.pid[0] * side_correction + self.pid[1] * (side_correction - self.previous_correction.side)
-        side_speed = int(self.clamp(side_speed, -100, 100))
+        side_speed = int(self.clamp(side_speed, -10, 10))
 
         front_speed = self.pid[0] * front_correction + self.pid[1] * (front_correction - self.previous_correction.front)
-        front_speed = - int(self.clamp(4 * front_speed, -100, 100))
+        front_speed = - int(self.clamp(4 * front_speed, -10, 10))
 
         self.drone.send_rc_control(side_speed, front_speed, 0, 0)
 

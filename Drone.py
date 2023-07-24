@@ -1,5 +1,4 @@
 import logging
-
 from djitellopy import Tello
 
 
@@ -8,7 +7,7 @@ class Drone:
         self.CurPos = [0, 0, 0, 0]
         # self.MapPos = MapPos
         self.drone = Tello(host=IP, vs_udp=vs_port)
-        self.drone.LOGGER.setLevel(logging.WARN)
+        # self.drone.LOGGER.setLevel(logging.WARN)
         self.drone.connect()
         self.drone.set_network_ports(state_port, vs_port)
 
