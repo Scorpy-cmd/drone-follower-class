@@ -37,7 +37,6 @@ if __name__ == "__main__":
     start_process = multiprocessing.Process(target=Menu, args=(loading_condition,))
     start_process.start()
 
-    while True:
-        if loading_condition[0]:
-            break
+    while not loading_condition[0]:
+        continue
     main(loading_condition)
