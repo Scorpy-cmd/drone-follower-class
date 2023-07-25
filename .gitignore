@@ -1,7 +1,7 @@
 #test file
 test.py
 yolo v8 test.py
-
+.idea/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

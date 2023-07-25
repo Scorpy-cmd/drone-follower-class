@@ -95,7 +95,7 @@ def startDrone(drone, drone_index, arr, running, loading_condition):
     #         # while state1[0]:
     #         #     continue
 
-    while running:
+    while running[0]:
         # tello.send_rc_control(0, 0, 0, 0)
         # continue
     
@@ -114,6 +114,7 @@ def startDrone(drone, drone_index, arr, running, loading_condition):
     tello.streamoff()
     tello.land()
     cv2.destroyAllWindows()
+    quit()
 
 
 def screen_cast(image, drone_index, state):

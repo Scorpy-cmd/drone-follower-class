@@ -14,30 +14,28 @@ class Buttons:
         self.Butt_Width = Butt_Width
         self.Butt_Height = Butt_Height
         self.image = image
-        self.Background1 = pygame.image.load("Resource/Sprites/CyberBackground.png")
         self.action = action
         self.args = args
         # self.message = message
         # self.color_message = color_message
 
-    def pressed(self, mouse, condition):
+    def pressed(self, mouse):
         click = pygame.mouse.get_pressed()
         if self.Butt_X < mouse[0] < self.Butt_X + self.Butt_Width:
             if self.Butt_Y < mouse[1] < self.Butt_Y + self.Butt_Height:
                 if click[0] == 1:
                     pygame.time.delay(200)
-                    condition[0] = True
-                    print("Loading")
-                    self.action(self.args[0], condition)
+                    # print("Loading")
+                    self.action(self.args)
 
-    def Button_Create(self, condition):
-        self.display.blit(self.Background1, (0, 0))
+    def Button_Create(self):
         self.display.blit(self.image, (self.Butt_X, self.Butt_Y))
-        self.pressed(pygame.mouse.get_pos(), condition)
+        self.pressed(pygame.mouse.get_pos())
 
 
-def Menu(condition):
-    running = True
+def Menu(condition, running):
+    cycle = True
+    Background1 = pygame.image.load("Resource/Sprites/CyberBackground.png")
     Start = pygame.image.load("Resource/Sprites/Start.png")
 
     # Создаем окно
@@ -46,43 +44,57 @@ def Menu(condition):
     display = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("Interface")
 
-    args = [display]
+    args = [display, condition, running]
     Button_Start = Buttons(display, WIDTH / 2 + 150, HEIGHT / 2 + 100, 280, 190, Start, Loading, args)
 
-    while running:
-        Button_Start.Button_Create(condition)
+    while cycle:
+        display.blit(Background1, (0, 0))
+        Button_Start.Button_Create()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
-                running = False
+                cycle = False
                 quit()
         clock.tick(FPS)
         pygame.display.update()
 
 
-def Loading(display, condition):
-    running = True
+def Loading(args):
+    display = args[0]
+    args[1][0] = True
+    cycle = True
 
     Background1 = pygame.image.load("Resource/Sprites/CyberBackground.png")
     Loading_Text = pygame.image.load("Resource/Sprites/Text_Loading.png")
+    Stop_Button = pygame.image.load("Resource/Sprites/stop.jpg")
 
-    while running:
+    new_args = [args[2]]
+    Button_Stop = Buttons(display, 10, HEIGHT / 2 + 100, 280, 190, Stop_Button, stop, new_args)
+
+    while cycle:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
-                running = False
+                cycle = False
                 quit()
         display.blit(Background1, (0, 0))
         display.blit(Loading_Text, (WIDTH / 2 - 350, HEIGHT / 2 - 175))
+        Button_Stop.Button_Create()
+        
         clock.tick(FPS)
         pygame.display.update()
-        if condition[0] == False:
-            running = False
-            pygame.quit()
-            quit()
+
+    cycle = False
+    pygame.quit()
+    quit()
         # Вызов Фунции запуска дрона
 
 
+def stop(args):
+    args[0][0] = False
+    pygame.quit()
+    quit()
+
 
 if __name__ == "__main__":
-    Menu()
+    Menu([False], [True])

@@ -17,11 +17,10 @@ drones_count = len(drones_ips)
 print(">>> starting the process")
 
 
-def main(loading_condition):
+def main(loading_condition, running):
     print(">>> setting up the variables")
     arr = multiprocessing.Array('b', [False] * drones_count)
     init_check = multiprocessing.Array('b', [False] * (drones_count))
-    running = multiprocessing.Value('b', True)
     print(">>> setting up processes")
     for i in range(drones_count):
         drones.append(threading.Thread(target=script, args=(
@@ -35,10 +34,11 @@ def main(loading_condition):
 
 
 if __name__ == "__main__":
+    running = multiprocessing.Array('b', [True])
     loading_condition = multiprocessing.Array('b', [False])
-    start_process = multiprocessing.Process(target=Menu, args=(loading_condition,))
+    start_process = multiprocessing.Process(target=Menu, args=(loading_condition, running))
     start_process.start()
 
     while not loading_condition[0]:
         continue
-    main(loading_condition)
+    main(loading_condition, running)
