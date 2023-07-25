@@ -8,12 +8,13 @@ from button import Menu
 import keyboard
 
 
-drones_count = 2
+# drones_count = 2
 drones = []
 "192.168.0.113"
 "192.168.0.118"
 "192.168.0.136"
-drones_ips = ['192.168.0.113', '192.168.0.118']
+drones_ips = ['192.168.0.136', '192.168.0.118', '192.168.0.113']
+drones_count = len(drones_ips)
 print(">>> statring the process")
 
 
@@ -25,7 +26,7 @@ def main(loading_condition):
     print(">>> setting up processes")
     for i in range(drones_count):
         drones.append(threading.Thread(target=script, args=(
-            drones_ips[i], 17600 + i * 11, 8080 + i * 7, i, arr, init_check, running, loading_condition)))
+            drones_ips[i], 17600 + i * 11, 8080 + i * 7, i, arr, init_check, running, loading_condition, drones_count)))
         drones[i].start()
         sleep(1)
 

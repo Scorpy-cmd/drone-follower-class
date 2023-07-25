@@ -1,5 +1,6 @@
 # import pygame
 import cv2
+import multiprocessing
 # import numpy as np
 # from time import sleep, time
 print("setting up drone")
@@ -19,6 +20,12 @@ def script(IP, state_port, vs_port, drone_index, arr, init_check, running, loadi
     #loading_condition[0] = False
     init_check[drone_index] = True
     print("starting the drone...")
+
+    processes = []
+    for i in range(drones_count):
+        processes.append(multiprocessing.Process(target=startDrone,
+                            args=(drone, drone_index, arr, running, loading_condition)))
+    processes[drone_index - 1].start()
     startDrone(drone, drone_index, arr, running, loading_condition)
 
 
@@ -27,7 +34,7 @@ def startDrone(drone, drone_index, arr, running, loading_condition):
     tello.takeoff()
     tello.move_up(150)
     tello.rotate_clockwise(90 * drone_index)
-    tello.move_forward(100)
+    tello.move_forward(150)
     tello.rotate_clockwise(180)
     loading_condition[0] = False
     follower = DroneTracker(tello)
@@ -51,7 +58,7 @@ def startDrone(drone, drone_index, arr, running, loading_condition):
         cv2.putText(frame, "Battery: {}%".format(tello.get_battery()), (2, 476), font, 1, (255,255,255), 2, cv2.LINE_AA)
         cv2.putText(frame, "Temperature: {}".format(tello.get_temperature()), (2, 430), font, 1, (255,255,255), 2, cv2.LINE_AA)
 
-        cv2.imshow("output", frame)
+        cv2.imshow("output" + str(drone_index), frame)
         cv2.waitKey(1)
 
     tello.send_rc_control(0, 0, 0, 0)
