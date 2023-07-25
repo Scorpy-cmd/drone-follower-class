@@ -11,23 +11,25 @@ from yolo import PersonRecognision
 print("done")
 
 
-def script(IP, state_port, vs_port, drone_index, arr, init_check, running):
+def script(IP, state_port, vs_port, drone_index, arr, init_check, running, loading_condition):
     if drone_index != 0:
         while not init_check[drone_index - 1]:
             continue
     drone = Drone(IP,state_port, vs_port)
+    #loading_condition[0] = False
     init_check[drone_index] = True
     print("starting the drone...")
-    startDrone(drone, drone_index, arr, running)
+    startDrone(drone, drone_index, arr, running, loading_condition)
 
 
-def startDrone(drone, drone_index, arr, running):
+def startDrone(drone, drone_index, arr, running, loading_condition):
     tello = drone.drone
     tello.takeoff()
     tello.move_up(150)
     tello.rotate_clockwise(90 * drone_index)
     tello.move_forward(100)
     tello.rotate_clockwise(180)
+    loading_condition[0] = False
     follower = DroneTracker(tello)
     tello.streamon()
     yolo = PersonRecognision()
@@ -38,6 +40,9 @@ def startDrone(drone, drone_index, arr, running):
         tello.send_rc_control(0,0,0,0)
 
     while running:
+        # tello.send_rc_control(0, 0, 0, 0)
+        # continue
+
         frame = tello.get_frame_read().frame
         frame, info = yolo.detect(frame)
         follower.trackTarget([info[0] // 2 + info[2] // 2, info[1]], 640, 480)
