@@ -49,61 +49,66 @@ def startDrone(drone, drone_index, arr, running, loading_condition):
     while not_ready_to_ship(arr):
         tello.send_rc_control(0,0,0,0)
 
-    if drone_index == 0:
-        while running:
-            # tello.send_rc_control(0, 0, 0, 0)
-            # continue
-            state = multiprocessing.Array('b', [True])
-            frame = tello.get_frame_read().frame
-            frame, info = yolo.detect(frame)
-            follower.trackTarget([info[0] // 2 + info[2] // 2, info[1]], 640, 480)
+    variables = {}
+    variables['frame' + str(drone_index)] = tello.get_frame_read().frame
 
-            font = cv2.FONT_HERSHEY_COMPLEX
-            cv2.putText(frame, "Battery: {}%".format(tello.get_battery()), (2, 476), font, 1, (255, 255, 255), 2,
-                        cv2.LINE_AA)
-            cv2.putText(frame, "Temperature: {}".format(tello.get_temperature()), (2, 430), font, 1, (255, 255, 255), 2,
-                        cv2.LINE_AA)
-            cv2.imshow("output" + str(drone_index), frame)
-            cv2.waitKey(1)
-            # process1 = multiprocessing.Process(target=screen_cast, args=(frame, drone_index, state))
-            # process1.start()
-            # while state[0]:
-            #     continue
-    if drone_index == 1:
 
-        while running:
-            # tello.send_rc_control(0, 0, 0, 0)
-            # continue
-            state1 = multiprocessing.Array('b', [True])
-            frame1 = tello.get_frame_read().frame
-            frame1, info = yolo.detect(frame1)
-            follower.trackTarget([info[0] // 2 + info[2] // 2, info[1]], 640, 480)
+    # if drone_index == 0:
+    #     while running:
+    #         # tello.send_rc_control(0, 0, 0, 0)
+    #         # continue
+    #         state = multiprocessing.Array('b', [True])
+    #         frame = tello.get_frame_read().frame
+    #         frame, info = yolo.detect(frame)
+    #         follower.trackTarget([info[0] // 2 + info[2] // 2, info[1]], 640, 480)
 
-            font = cv2.FONT_HERSHEY_COMPLEX
-            cv2.putText(frame1, "Battery: {}%".format(tello.get_battery()), (2, 476), font, 1, (255, 255, 255), 2,
-                        cv2.LINE_AA)
-            cv2.putText(frame1, "Temperature: {}".format(tello.get_temperature()), (2, 430), font, 1, (255, 255, 255), 2,
-                        cv2.LINE_AA)
-            cv2.imshow("output" + str(drone_index), frame1)
-            cv2.waitKey(1)
-            # process1 = multiprocessing.Process(target=screen_cast, args=(frame1, drone_index, state1))
-            # process1.start()
-            # while state1[0]:
-            #     continue
-    # while running:
-    #     # tello.send_rc_control(0, 0, 0, 0)
-    #     # continue
-    #
-    #     frame = tello.get_frame_read().frame
-    #     frame, info = yolo.detect(frame)
-    #     follower.trackTarget([info[0] // 2 + info[2] // 2, info[1]], 640, 480)
-    #
-    #     font = cv2.FONT_HERSHEY_COMPLEX
-    #     cv2.putText(frame, "Battery: {}%".format(tello.get_battery()), (2, 476), font, 1, (255,255,255), 2, cv2.LINE_AA)
-    #     cv2.putText(frame, "Temperature: {}".format(tello.get_temperature()), (2, 430), font, 1, (255,255,255), 2, cv2.LINE_AA)
-    #
-    #     cv2.imshow("output" + str(drone_index), frame)
-    #     cv2.waitKey(1)
+    #         font = cv2.FONT_HERSHEY_COMPLEX
+    #         cv2.putText(frame, "Battery: {}%".format(tello.get_battery()), (2, 476), font, 1, (255, 255, 255), 2,
+    #                     cv2.LINE_AA)
+    #         cv2.putText(frame, "Temperature: {}".format(tello.get_temperature()), (2, 430), font, 1, (255, 255, 255), 2,
+    #                     cv2.LINE_AA)
+    #         cv2.imshow("output" + str(drone_index), frame)
+    #         cv2.waitKey(1)
+    #         # process1 = multiprocessing.Process(target=screen_cast, args=(frame, drone_index, state))
+    #         # process1.start()
+    #         # while state[0]:
+    #         #     continue
+    # if drone_index == 1:
+
+    #     while running:
+    #         # tello.send_rc_control(0, 0, 0, 0)
+    #         # continue
+    #         state1 = multiprocessing.Array('b', [True])
+    #         frame1 = tello.get_frame_read().frame
+    #         frame1, info = yolo.detect(frame1)
+    #         follower.trackTarget([info[0] // 2 + info[2] // 2, info[1]], 640, 480)
+
+    #         font = cv2.FONT_HERSHEY_COMPLEX
+    #         cv2.putText(frame1, "Battery: {}%".format(tello.get_battery()), (2, 476), font, 1, (255, 255, 255), 2,
+    #                     cv2.LINE_AA)
+    #         cv2.putText(frame1, "Temperature: {}".format(tello.get_temperature()), (2, 430), font, 1, (255, 255, 255), 2,
+    #                     cv2.LINE_AA)
+    #         cv2.imshow("output" + str(drone_index), frame1)
+    #         cv2.waitKey(1)
+    #         # process1 = multiprocessing.Process(target=screen_cast, args=(frame1, drone_index, state1))
+    #         # process1.start()
+    #         # while state1[0]:
+    #         #     continue
+
+    while running:
+        # tello.send_rc_control(0, 0, 0, 0)
+        # continue
+    
+        variables['frame' + str(drone_index)] = tello.get_frame_read().frame
+        variables['frame' + str(drone_index)], info = yolo.detect(variables['frame' + str(drone_index)])
+        follower.trackTarget([info[0] // 2 + info[2] // 2, info[1]], 640, 480)
+    
+        font = cv2.FONT_HERSHEY_COMPLEX
+        cv2.putText(variables['frame' + str(drone_index)], "Battery: {}%".format(tello.get_battery()), (2, 476), font, 1, (255,255,255), 2, cv2.LINE_AA)
+        cv2.putText(variables['frame' + str(drone_index)], "Temperature: {}".format(tello.get_temperature()), (2, 430), font, 1, (255,255,255), 2, cv2.LINE_AA)
+    
+        cv2.imshow("output " + str(drone_index), variables['frame' + str(drone_index)])
+        cv2.waitKey(1)
 
     tello.send_rc_control(0, 0, 0, 0)
     tello.streamoff()
