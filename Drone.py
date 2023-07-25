@@ -21,12 +21,13 @@ class Drone:
         process.join()
         process.kill()
 
-        self.drone.set_video_fps(Tello.FPS_30)
-        self.drone.set_video_resolution(Tello.RESOLUTION_480P)
-        self.drone.set_video_bitrate(Tello.BITRATE_1MBPS)
 
     def connect_switch_port(self):
         self.drone = Tello(host=self.IP, vs_udp=self.vs_port)
         self.drone.LOGGER.setLevel(logging.WARN)
         self.drone.connect()
         self.drone.set_network_ports(self.state_port, self.vs_port)
+
+        self.drone.set_video_fps(Tello.FPS_30)
+        self.drone.set_video_resolution(Tello.RESOLUTION_480P)
+        self.drone.set_video_bitrate(Tello.BITRATE_1MBPS)
