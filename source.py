@@ -5,7 +5,6 @@ import threading
 from script import script
 from time import sleep, time
 from button import Menu
-import keyboard
 
 
 # drones_count = 2
@@ -13,9 +12,9 @@ drones = []
 "192.168.0.113"
 "192.168.0.118"
 "192.168.0.136"
-drones_ips = ['192.168.0.136', '192.168.0.118', '192.168.0.113']
+drones_ips = ['192.168.0.113', '192.168.0.136']#, '192.168.0.113']
 drones_count = len(drones_ips)
-print(">>> statring the process")
+print(">>> starting the process")
 
 
 def main(loading_condition):
