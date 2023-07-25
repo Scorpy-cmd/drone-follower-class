@@ -1,4 +1,6 @@
 import multiprocessing
+import threading
+
 # import pygame
 from script import script
 from time import sleep, time
@@ -22,10 +24,10 @@ def main(loading_condition):
     running = multiprocessing.Value('b', True)
     print(">>> setting up processes")
     for i in range(drones_count):
-        drones.append(multiprocessing.Process(target=script, args=(
+        drones.append(threading.Thread(target=script, args=(
             drones_ips[i], 17600 + i * 11, 8080 + i * 7, i, arr, init_check, running, loading_condition)))
         drones[i].start()
-        sleep(4)
+        sleep(1)
 
     print("joining")
     for i in range(drones_count):

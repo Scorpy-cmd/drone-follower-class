@@ -24,10 +24,11 @@ class Buttons:
         click = pygame.mouse.get_pressed()
         if self.Butt_X < mouse[0] < self.Butt_X + self.Butt_Width:
             if self.Butt_Y < mouse[1] < self.Butt_Y + self.Butt_Height:
-                pygame.time.delay(200)
-                condition[0] = True
-                print("Loading")
-                self.action(self.args[0], condition)
+                if click[0] == 1:
+                    pygame.time.delay(200)
+                    condition[0] = True
+                    print("Loading")
+                    self.action(self.args[0], condition)
 
     def Button_Create(self, condition):
         self.display.blit(self.Background1, (0, 0))

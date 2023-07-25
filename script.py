@@ -40,6 +40,9 @@ def startDrone(drone, drone_index, arr, running, loading_condition):
         tello.send_rc_control(0,0,0,0)
 
     while running:
+        # tello.send_rc_control(0, 0, 0, 0)
+        # continue
+
         frame = tello.get_frame_read().frame
         frame, info = yolo.detect(frame)
         follower.trackTarget([info[0] // 2 + info[2] // 2, info[1]], 640, 480)
