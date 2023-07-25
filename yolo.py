@@ -6,6 +6,8 @@ print("done!")
 # from Face_tracker import DroneTracker
 # from djitellopy import Tello
 
+# pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+
 # print("Setting up class names...")
 # # opening the file in read mode
 # with open("utils/coco.txt", "r") as file:
@@ -137,6 +139,32 @@ class PersonRecognision:
             cv2.rectangle(frame, (int(bb[0]), int(bb[1])), (int(bb[2]), int(bb[3])), [255, 255, 0], 3)
             font = cv2.FONT_HERSHEY_COMPLEX
             cv2.putText(frame, self.class_list[int(clsID)] + " " + str(round(conf * 100, 1)) + "%", (int(bb[0]), int(bb[1]) - 10), font, 1, (248, 0, 0), 2)
+
+        end = time.time()
+        # show the time it took to process 1 frame
+        total = end - start
+        fps = f"FPS: {1 / total:.0f}"
+        cv2.putText(frame, fps, (5, 50), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 248), 4)
+
+        return frame, bb
+
+    def detect_gpu(self, frame):
+        start = time.time()
+        detect_params = self.model.predict(source=frame, conf=0.45, classes=[0], max_det=60)[0]
+        DP = detect_params.cpu().numpy()
+
+        bb = [-2, 0, 0, 0]
+
+        if len(DP) != 0:
+            boxes = detect_params.boxes
+            box = boxes[0]
+            clsID = box.cls.cpu().numpy()[0]
+            conf = box.conf.cpu().numpy()[0]
+            bb = box.xyxy.cpu().numpy()[0]
+            cv2.rectangle(frame, (int(bb[0]), int(bb[1])), (int(bb[2]), int(bb[3])), [255, 255, 0], 3)
+            font = cv2.FONT_HERSHEY_COMPLEX
+            cv2.putText(frame, self.class_list[int(clsID)] + " " + str(round(conf * 100, 1)) + "%",
+                        (int(bb[0]), int(bb[1]) - 10), font, 1, (248, 0, 0), 2)
 
         end = time.time()
         # show the time it took to process 1 frame
